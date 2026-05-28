@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -131,8 +130,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponseDTO findById(Long patientId) {
-        return patientRepository.findById(patientId)
+        Patient patient= patientRepository.findById(patientId)
                 .orElseThrow(()->new ValidationException(ErrorType.RESOURCE_NOT_FOUND,"Le patient avec l'identifiant " + patientId + " n'existe pas."));
-        ;
+
+        return patientMapper.toDTO(patient);
     }
 }

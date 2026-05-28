@@ -5,6 +5,7 @@ import com.docTime.disponibilite.dto.DisponibiliteResponseDTO;
 import com.docTime.doctor.dto.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DoctorService {
     DoctorResponseDTO createDoctor(DoctorRequestDTO dto);
@@ -20,4 +21,5 @@ public interface DoctorService {
     DoctorResponseDTO getDoctorByEmail(String email);
     boolean existsById(Long id);
 
+    DoctorResponseDTO findById(Long doctorId);
 }

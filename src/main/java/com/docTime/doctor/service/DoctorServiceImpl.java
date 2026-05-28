@@ -8,6 +8,7 @@ import com.docTime.doctor.dto.*;
 import com.docTime.doctor.mapper.DoctorMapper;
 import com.docTime.doctor.model.Doctor;
 import com.docTime.doctor.repository.DoctorRepository;
+import com.docTime.patient.model.Patient;
 import com.docTime.validation.ErrorType;
 import com.docTime.validation.ValidationException;
 import com.docTime.validation.Validator;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -138,5 +140,13 @@ public class DoctorServiceImpl implements DoctorService {
     public boolean existsById(Long id) {
         log.info("Vérification de l'existence du docteur ID : {}", id);
         return doctorRepository.existsById(id);
+    }
+
+    @Override
+    public DoctorResponseDTO findById(Long doctorId) {
+        Doctor doctor= doctorRepository.findById(doctorId)
+                .orElseThrow(()->new ValidationException(ErrorType.RESOURCE_NOT_FOUND,"Le Docteur avec l'identifiant " + doctorId + " n'existe pas."));
+
+        return doctorMapper.toResponse(doctor);
     }
 }

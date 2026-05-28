@@ -1,10 +1,15 @@
 package com.docTime.appointment.service;
 
 import com.docTime.appointment.dto.AppointmentResponseDTO;
+import com.docTime.appointment.model.Appointment;
 import com.docTime.appointment.repository.AppointmentRepository;
+import com.docTime.doctor.dto.DoctorResponseDTO;
 import com.docTime.doctor.model.Doctor;
+import com.docTime.doctor.service.DoctorService;
+import com.docTime.patient.dto.PatientResponseDTO;
 import com.docTime.patient.model.Patient;
 import com.docTime.patient.service.PatientService;
+import com.docTime.validation.Validator;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,40 +21,33 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     private final AppointmentRepository appointmentRepository;
     private final PatientService patientService;
+    private final DoctorService doctorService;
+    private final Validator validator;
 
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, PatientService patientService) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, PatientService patientService, DoctorService doctorService, Validator validator) {
         this.appointmentRepository = appointmentRepository;
         this.patientService = patientService;
+        this.doctorService = doctorService;
+        this.validator = validator;
     }
 
     @Override
     public AppointmentResponseDTO createAppointment(Long patientId, Long doctorId, LocalDateTime dateTime, String notes) {
-        // 1. Le patient existe-t-il ?
-        Patient patient = patientService.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("Patient non trouvé avec l'ID : " + patientId));
+        PatientResponseDTO patient = patientService.findById(patientId);
 
-        // 2. Le docteur existe-t-il ?
-        Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new RuntimeException("Docteur non trouvé avec l'ID : " + doctorId));
+        DoctorResponseDTO doctor = doctorService.findById(doctorId);
 
-        // 3. Le docteur est-il disponible ce jour-là à cette heure-là ?
-        validateDoctorAvailability(doctor, dateTime);
+        validator.validateDoctorAvailability(doctor, dateTime);
 
-        // 4. Le docteur n'a-t-il pas déjà un rendez-vous à la même date/heure ?
         appointmentRepository.findByDoctorIdAndAppointmentDateTime(doctorId, dateTime)
                 .ifPresent(app -> {
                     throw new RuntimeException("Ce créneau est déjà réservé pour le docteur " + doctor.getLastName());
                 });
 
-        // Tout est bon, on crée le rendez-vous
         Appointment appointment = new Appointment(patient, doctor, dateTime, notes);
         return appointmentRepository.save(appointment);
     }
 
-    @Override
-    public void validateDoctorAvailability(Doctor doctor, LocalDateTime dateTime) {
-
-    }
 
     @Override
     public List<AppointmentResponseDTO> getAllAppointments() {

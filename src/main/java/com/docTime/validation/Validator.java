@@ -1,5 +1,6 @@
 package com.docTime.validation;
 
+import com.docTime.doctor.dto.DoctorResponseDTO;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.regex.Pattern;
 
@@ -26,6 +28,10 @@ public class Validator {
         if (!start.isBefore(end)) {
             throw new ValidationException(ErrorType.INVALID_INPUT, "L'heure de début doit être antérieure à l'heure de fin.");
         }
+
+    }
+
+    public void validateDoctorAvailability(DoctorResponseDTO doctor, LocalDateTime dateTime) {
 
     }
 
